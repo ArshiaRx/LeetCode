@@ -32,17 +32,18 @@ jobs:
           mkdir -p leetcode/Easy leetcode/Medium leetcode/Hard
 
       - name: Export accepted LeetCode submissions
+        working-directory: leetcode
         env:
           LEETCODE_COOKIES: ${{ secrets.LEETCODE_COOKIE }}
         run: |
           leetcode-export \
-            --cookies "$LEETCODE_COOKIES" \
-            --folder leetcode \
-            --problem-folder-name '${difficulty}/${question_id}-${title_slug}' \
-            --only-accepted \
-            --only-last-submission \
-            --no-problem-statement \
-            --verbose
+          --cookies "$LEETCODE_COOKIES" \
+          --folder . \
+          --problem-folder-name '${difficulty}/${question_id}-${title_slug}' \
+          --only-accepted \
+          --only-last-submission \
+          --no-problem-statement \
+          --verbose
 
       - name: Generate analysis report
         run: |
