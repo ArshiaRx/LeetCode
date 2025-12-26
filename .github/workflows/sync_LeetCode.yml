@@ -29,27 +29,36 @@ jobs:
 
       - name: Create difficulty folders
         run: |
-          mkdir -p Easy Medium Hard
           mkdir -p leetcode/Easy leetcode/Medium leetcode/Hard
 
+
       - name: Export accepted LeetCode submissions
-        working-directory: leetcode
         env:
           LEETCODE_COOKIES: ${{ secrets.LEETCODE_COOKIE }}
         run: |
-            leetcode-export \
+          leetcode-export \
             --cookies "$LEETCODE_COOKIES" \
-            --folder . \
+            --folder leetcode \
             --problem-folder-name '${difficulty}/${question_id}-${title_slug}' \
             --only-accepted \
             --only-last-submission \
             --no-problem-statement \
             --verbose
 
+
       - name: Generate analysis report
         run: |
           python scripts/leetcode_analyze.py
 
+      - name: Check for changes
+        id: changes
+        run: |
+          if git status --porcelain | grep .; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+          
       - name: Commit and push changes
         run: |
           git config user.name "leetcode-sync-bot"
