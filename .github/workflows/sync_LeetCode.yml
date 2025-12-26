@@ -7,7 +7,7 @@ on:
     - cron: "*/30 * * * *"
   push:
     paths:
-      - '.github/workflows/sync_LeetCode.yml'
+      - ".github/workflows/sync_LeetCode.yml"
 
 permissions:
   contents: write
@@ -40,7 +40,6 @@ jobs:
             --problem-folder-name '${difficulty}_${question_id}-${title_slug}' \
             --only-accepted \
             --only-last-submission \
-            --no-problem-statement \
             --verbose
 
       - name: Organize by difficulty and generate analysis report
