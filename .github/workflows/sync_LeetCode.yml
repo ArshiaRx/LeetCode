@@ -5,6 +5,9 @@ on:
   schedule:
     # Runs every 30 minutes (best approximation of "update every time I submit")
     - cron: "*/30 * * * *"
+  push:
+    paths:
+      - '.github/workflows/sync_LeetCode.yml'
 
 permissions:
   contents: write
