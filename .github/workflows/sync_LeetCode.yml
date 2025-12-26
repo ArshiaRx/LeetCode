@@ -2,6 +2,10 @@ name: LeetCode Sync (Stable)
 
 on:
   workflow_dispatch:
+  schedule:
+    # Runs daily at 13:00 UTC
+    # ≈ 8 AM Toronto (winter) / 9 AM Toronto (summer)
+    - cron: "0 13 * * *"
 
 permissions:
   contents: write
@@ -24,9 +28,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install leetcode-export
 
-      - name: Export accepted submissions
+      - name: Export accepted LeetCode submissions
         env:
-          LEETCODE_COOKIES: csrftoken=${{ secrets.LEETCODE_CSRF_TOKEN }}; LEETCODE_SESSION=${{ secrets.LEETCODE_SESSION }}
+          # FULL cookie header copied from Network → Request Headers
+          LEETCODE_COOKIES: ${{ secrets.LEETCODE_COOKIE }}
         run: |
           leetcode-export \
             --cookies "$LEETCODE_COOKIES" \
