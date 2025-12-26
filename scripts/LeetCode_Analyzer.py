@@ -1,5 +1,4 @@
 import os
-import json
 import shutil
 from collections import Counter, defaultdict
 
@@ -55,13 +54,48 @@ def pct(n: int, total: int) -> str:
         return "0.0%"
     return f"{(n * 100.0 / total):.1f}%"
 
+def parse_folder_name(folder_name: str):
+    """
+    Parse folder name to extract difficulty, category (optional), and problem name.
+    Supports two formats:
+    1. Difficulty_Category_id-slug (if category is included)
+    2. Difficulty_id-slug (if category is not included)
+    
+    Returns: (difficulty, category, problem_name)
+    """
+    for diff in DIFFICULTIES:
+        if folder_name.startswith(f"{diff}_"):
+            remaining = folder_name[len(diff) + 1:]  # Remove "Medium_" prefix
+            
+            # Skip if remaining contains literal template variables (means template var not supported)
+            if "${" in remaining or "$tags" in remaining:
+                # Treat as no category - template variable wasn't expanded
+                return (diff, None, remaining)
+            
+            # Check if there's a category (format: Category_id-slug)
+            # Category would be followed by underscore and then digits
+            parts = remaining.split("_", 1)
+            if len(parts) == 2 and parts[1] and parts[1][0].isdigit():
+                # Has category: Category_id-slug
+                category = parts[0]
+                problem_name = parts[1]
+                return (diff, category, problem_name)
+            else:
+                # No category: id-slug
+                return (diff, None, remaining)
+    return (None, None, None)
+
 def organize_by_difficulty(leetcode_root: str):
     """
-    Move folders like 'Medium_347-top-k-frequent-elements' 
-    into 'Medium/347-top-k-frequent-elements/'
+    Move folders like 'Medium_347-top-k-frequent-elements' or 'Medium_Array_238-product-of-array-except-self'
+    into 'Medium/347-top-k-frequent-elements/' or 'Medium/238-product-of-array-except-self/'
+    
+    Returns a dict mapping (difficulty, problem_name) -> category for use in README generation
     """
+    category_map = {}
+    
     if not os.path.isdir(leetcode_root):
-        return
+        return category_map
     
     items_to_move = []
     for item in os.listdir(leetcode_root):
@@ -69,17 +103,17 @@ def organize_by_difficulty(leetcode_root: str):
         if not os.path.isdir(item_path):
             continue
         
-        # Match pattern: Difficulty_id-slug
-        for diff in DIFFICULTIES:
-            if item.startswith(f"{diff}_"):
-                problem_name = item[len(diff) + 1:]  # Remove "Medium_" prefix
-                dest_dir = os.path.join(leetcode_root, diff)
-                dest_path = os.path.join(dest_dir, problem_name)
-                items_to_move.append((item_path, dest_path, dest_dir))
-                break
+        difficulty, category, problem_name = parse_folder_name(item)
+        if difficulty and problem_name:
+            dest_dir = os.path.join(leetcode_root, difficulty)
+            dest_path = os.path.join(dest_dir, problem_name)
+            items_to_move.append((item_path, dest_path, dest_dir, difficulty, problem_name, category))
+            # Store category mapping if available
+            if category:
+                category_map[(difficulty, problem_name)] = category
     
     # Move items after collecting them (to avoid modifying list while iterating)
-    for item_path, dest_path, dest_dir in items_to_move:
+    for item_path, dest_path, dest_dir, difficulty, problem_name, category in items_to_move:
         os.makedirs(dest_dir, exist_ok=True)
         if os.path.exists(dest_path):
             # If destination already exists, merge or skip
@@ -88,17 +122,136 @@ def organize_by_difficulty(leetcode_root: str):
         else:
             shutil.move(item_path, dest_path)
             print(f"Moved {item_path} -> {dest_path}")
+    
+    return category_map
+
+def group_problems_by_category(problem_folders: list, difficulty: str, category_map: dict):
+    """
+    Group problem folders by category.
+    Returns a dict mapping category -> list of problem folders.
+    """
+    categories = defaultdict(list)
+    
+    for problem in problem_folders:
+        category = category_map.get((difficulty, problem), None)
+        categories[category].append(problem)
+    
+    return categories
+
+def generate_readme_for_difficulty(diff_dir: str, difficulty: str, files: list, lang_counter: Counter, category_map: dict):
+    """
+    Generate README.md for a specific difficulty folder.
+    """
+    total_files = sum(lang_counter.values())
+    
+    lines = []
+    lines.append(f"# {difficulty} Problems\n\n")
+    lines.append(f"Total solution files: **{total_files}**\n\n")
+    
+    # Language breakdown
+    if lang_counter:
+        lines.append("## Language Distribution\n\n")
+        lines.append("| Language | Count | Percent |\n")
+        lines.append("|---|---:|---:|\n")
+        for lang, count in lang_counter.most_common():
+            lines.append(f"| {lang} | {count} | {pct(count, total_files)} |\n")
+        lines.append("\n")
+    
+    # Problem list (grouped by category if available)
+    problem_folders = []
+    if os.path.isdir(diff_dir):
+        for item in os.listdir(diff_dir):
+            item_path = os.path.join(diff_dir, item)
+            if os.path.isdir(item_path) and not item.startswith("."):
+                problem_folders.append(item)
+    
+    problem_folders.sort()
+    
+    if problem_folders:
+        # Group by category
+        problems_by_category = group_problems_by_category(problem_folders, difficulty, category_map)
+        
+        # Check if we have any categories
+        has_categories = any(cat is not None for cat in problems_by_category.keys())
+        
+        if has_categories:
+            lines.append("## Problems by Category\n\n")
+            # Sort categories alphabetically, but put None (uncategorized) last
+            sorted_categories = sorted(
+                [cat for cat in problems_by_category.keys() if cat is not None],
+                key=lambda x: x or ""
+            )
+            if None in problems_by_category:
+                sorted_categories.append(None)
+            
+            for category in sorted_categories:
+                problems = sorted(problems_by_category[category])
+                if category:
+                    lines.append(f"### {category}\n\n")
+                else:
+                    lines.append("### Uncategorized\n\n")
+                
+                for problem in problems:
+                    lines.append(f"- [{problem}](./{problem})\n")
+                lines.append("\n")
+        else:
+            lines.append("## Problems\n\n")
+            for problem in problem_folders:
+                lines.append(f"- [{problem}](./{problem})\n")
+            lines.append("\n")
+    
+    readme_path = os.path.join(diff_dir, "README.md")
+    with open(readme_path, "w", encoding="utf-8") as f:
+        f.writelines(lines)
+    print(f"Wrote {readme_path}")
+
+def generate_root_readme(leetcode_root: str, results: dict):
+    """
+    Generate combined README.md at leetcode root.
+    """
+    lines = []
+    lines.append("# LeetCode Solutions\n\n")
+    lines.append("This repository contains my LeetCode solutions, organized by difficulty.\n\n")
+    
+    # Overall stats
+    overall = results.get("Overall", {})
+    overall_total = overall.get("total_files", 0)
+    lines.append(f"Total solution files: **{overall_total}**\n\n")
+    
+    # Language distribution
+    overall_langs = overall.get("languages", {})
+    if overall_langs:
+        lines.append("## Overall Language Distribution\n\n")
+        lines.append("| Language | Count | Percent |\n")
+        lines.append("|---|---:|---:|\n")
+        for lang, meta in overall_langs.items():
+            lines.append(f"| {lang} | {meta['count']} | {meta['percent']} |\n")
+        lines.append("\n")
+    
+    # Breakdown by difficulty
+    lines.append("## By Difficulty\n\n")
+    for diff in DIFFICULTIES:
+        diff_data = results.get(diff, {})
+        total_files = diff_data.get("total_files", 0)
+        lines.append(f"- [{diff}](./{diff}/) - {total_files} solutions\n")
+    lines.append("\n")
+    
+    readme_path = os.path.join(leetcode_root, "README.md")
+    with open(readme_path, "w", encoding="utf-8") as f:
+        f.writelines(lines)
+    print(f"Wrote {readme_path}")
 
 def main():
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     leetcode_root = os.path.join(repo_root, "leetcode")
 
-    # Organize folders by difficulty first
-    organize_by_difficulty(leetcode_root)
+    # Organize folders by difficulty first and get category mapping
+    category_map = organize_by_difficulty(leetcode_root)
 
     results = {}
     overall_counter = Counter()
 
+    # Process each difficulty
     for diff in DIFFICULTIES:
         diff_dir = os.path.join(leetcode_root, diff)
         if not os.path.isdir(diff_dir):
@@ -115,48 +268,20 @@ def main():
             "total_files": total,
             "languages": {lang: {"count": c, "percent": pct(c, total)} for lang, c in counter.most_common()}
         }
+        
+        # Generate README for this difficulty
+        generate_readme_for_difficulty(diff_dir, diff, files, counter, category_map)
 
+    # Overall stats
     overall_total = sum(overall_counter.values())
     results["Overall"] = {
         "total_files": overall_total,
         "languages": {lang: {"count": c, "percent": pct(c, overall_total)} for lang, c in overall_counter.most_common()}
     }
-
-    # Write JSON
+    
+    # Generate root README
     os.makedirs(leetcode_root, exist_ok=True)
-    json_path = os.path.join(leetcode_root, "analysis.json")
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2)
-
-    # Write Markdown report
-    md_path = os.path.join(leetcode_root, "ANALYSIS.md")
-    lines = []
-    lines.append("# LeetCode Language Analysis\n")
-    lines.append("This report is auto-generated by the GitHub Action workflow.\n")
-
-    for section in DIFFICULTIES + ["Overall"]:
-        section_data = results.get(section, {})
-        total_files = section_data.get("total_files", 0)
-
-        lines.append(f"## {section}\n")
-        lines.append(f"Total solution files detected: **{total_files}**\n")
-
-        langs = section_data.get("languages", {})
-        if not langs:
-            lines.append("_No solution files found._\n")
-            continue
-
-        lines.append("| Language | Count | Percent |\n")
-        lines.append("|---|---:|---:|\n")
-        for lang, meta in langs.items():
-            lines.append(f"| {lang} | {meta['count']} | {meta['percent']} |\n")
-        lines.append("\n")
-
-    with open(md_path, "w", encoding="utf-8") as f:
-        f.writelines(lines)
-
-    print(f"Wrote {json_path}")
-    print(f"Wrote {md_path}")
+    generate_root_readme(leetcode_root, results)
 
 if __name__ == "__main__":
     main()

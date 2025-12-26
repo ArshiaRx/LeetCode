@@ -34,7 +34,7 @@ jobs:
           leetcode-export \
             --cookies "$LEETCODE_COOKIES" \
             --folder leetcode \
-            --problem-folder-name '${difficulty}_${question_id}-${title_slug}' \
+            --problem-folder-name '${difficulty}_${tags}_${question_id}-${title_slug}' \
             --only-accepted \
             --only-last-submission \
             --no-problem-statement \
