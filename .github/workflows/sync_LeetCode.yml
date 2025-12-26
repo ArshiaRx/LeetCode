@@ -27,11 +27,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install leetcode-export
 
-      - name: Create difficulty folders
-        run: |
-          mkdir -p leetcode/Easy leetcode/Medium leetcode/Hard
-
-
       - name: Export accepted LeetCode submissions
         env:
           LEETCODE_COOKIES: ${{ secrets.LEETCODE_COOKIE }}
@@ -39,16 +34,15 @@ jobs:
           leetcode-export \
             --cookies "$LEETCODE_COOKIES" \
             --folder leetcode \
-            --problem-folder-name '${difficulty}/${question_id}-${title_slug}' \
+            --problem-folder-name '${difficulty}_${question_id}-${title_slug}' \
             --only-accepted \
             --only-last-submission \
             --no-problem-statement \
             --verbose
 
-
-      - name: Generate analysis report
+      - name: Organize by difficulty and generate analysis report
         run: |
-          python scripts/leetcode_analyze.py
+          python scripts/LeetCode_Analyzer.py
 
       - name: Check for changes
         id: changes
@@ -58,7 +52,7 @@ jobs:
           else
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
-          
+
       - name: Commit and push changes
         run: |
           git config user.name "leetcode-sync-bot"

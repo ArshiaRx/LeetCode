@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 from collections import Counter, defaultdict
 
 # Map file extensions to language names
@@ -54,9 +55,46 @@ def pct(n: int, total: int) -> str:
         return "0.0%"
     return f"{(n * 100.0 / total):.1f}%"
 
+def organize_by_difficulty(leetcode_root: str):
+    """
+    Move folders like 'Medium_347-top-k-frequent-elements' 
+    into 'Medium/347-top-k-frequent-elements/'
+    """
+    if not os.path.isdir(leetcode_root):
+        return
+    
+    items_to_move = []
+    for item in os.listdir(leetcode_root):
+        item_path = os.path.join(leetcode_root, item)
+        if not os.path.isdir(item_path):
+            continue
+        
+        # Match pattern: Difficulty_id-slug
+        for diff in DIFFICULTIES:
+            if item.startswith(f"{diff}_"):
+                problem_name = item[len(diff) + 1:]  # Remove "Medium_" prefix
+                dest_dir = os.path.join(leetcode_root, diff)
+                dest_path = os.path.join(dest_dir, problem_name)
+                items_to_move.append((item_path, dest_path, dest_dir))
+                break
+    
+    # Move items after collecting them (to avoid modifying list while iterating)
+    for item_path, dest_path, dest_dir in items_to_move:
+        os.makedirs(dest_dir, exist_ok=True)
+        if os.path.exists(dest_path):
+            # If destination already exists, merge or skip
+            # For now, we'll skip to avoid overwriting
+            print(f"Warning: {dest_path} already exists, skipping {item_path}")
+        else:
+            shutil.move(item_path, dest_path)
+            print(f"Moved {item_path} -> {dest_path}")
+
 def main():
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     leetcode_root = os.path.join(repo_root, "leetcode")
+
+    # Organize folders by difficulty first
+    organize_by_difficulty(leetcode_root)
 
     results = {}
     overall_counter = Counter()
