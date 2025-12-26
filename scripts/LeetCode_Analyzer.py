@@ -125,6 +125,64 @@ def organize_by_difficulty(leetcode_root: str):
     
     return category_map
 
+def rename_problem_statements(leetcode_root: str):
+    """
+    Rename problem statement markdown files in each problem folder to README.md.
+    Scans Easy/, Medium/, Hard/ directories and looks for .md files (except README.md)
+    in each problem subfolder, then renames them to README.md.
+    """
+    for diff in DIFFICULTIES:
+        diff_dir = os.path.join(leetcode_root, diff)
+        if not os.path.isdir(diff_dir):
+            continue
+        
+        # Scan each problem folder
+        for item in os.listdir(diff_dir):
+            problem_folder = os.path.join(diff_dir, item)
+            if not os.path.isdir(problem_folder) or item.startswith("."):
+                continue
+            
+            # Look for markdown files in this problem folder
+            md_files = []
+            if os.path.isdir(problem_folder):
+                for file in os.listdir(problem_folder):
+                    file_path = os.path.join(problem_folder, file)
+                    if os.path.isfile(file_path) and file.lower().endswith(".md"):
+                        # Skip if already README.md
+                        if file.lower() != "readme.md":
+                            md_files.append(file_path)
+            
+            # If we found markdown files, rename the first one to README.md
+            # (Usually leetcode-export only creates one problem statement file)
+            if md_files:
+                target_readme = os.path.join(problem_folder, "README.md")
+                
+                # If README.md already exists, skip or replace based on preference
+                # Here we'll replace it with the problem statement
+                if os.path.exists(target_readme):
+                    # Backup old README.md if it's different
+                    try:
+                        os.remove(target_readme)
+                    except Exception as e:
+                        print(f"Warning: Could not remove existing README.md in {problem_folder}: {e}")
+                        continue
+                
+                # Rename the first markdown file to README.md
+                try:
+                    os.rename(md_files[0], target_readme)
+                    print(f"Renamed {md_files[0]} -> {target_readme}")
+                    
+                    # If there are multiple .md files, remove the others
+                    # (shouldn't happen normally, but just in case)
+                    for other_md in md_files[1:]:
+                        try:
+                            os.remove(other_md)
+                            print(f"Removed duplicate markdown file: {other_md}")
+                        except Exception as e:
+                            print(f"Warning: Could not remove {other_md}: {e}")
+                except Exception as e:
+                    print(f"Warning: Could not rename {md_files[0]} to README.md: {e}")
+
 def group_problems_by_category(problem_folders: list, difficulty: str, category_map: dict):
     """
     Group problem folders by category.
@@ -247,6 +305,9 @@ def main():
 
     # Organize folders by difficulty first and get category mapping
     category_map = organize_by_difficulty(leetcode_root)
+    
+    # Rename problem statement files to README.md
+    rename_problem_statements(leetcode_root)
 
     results = {}
     overall_counter = Counter()
