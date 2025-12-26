@@ -116,12 +116,38 @@ def organize_by_difficulty(leetcode_root: str):
     for item_path, dest_path, dest_dir, difficulty, problem_name, category in items_to_move:
         os.makedirs(dest_dir, exist_ok=True)
         if os.path.exists(dest_path):
-            # If destination already exists, merge or skip
-            # For now, we'll skip to avoid overwriting
-            print(f"Warning: {dest_path} already exists, skipping {item_path}")
+            # If destination already exists, merge new files from source to dest, then delete source
+            try:
+                for file in os.listdir(item_path):
+                    src_file = os.path.join(item_path, file)
+                    dst_file = os.path.join(dest_path, file)
+                    if os.path.isfile(src_file) and not os.path.exists(dst_file):
+                        shutil.copy2(src_file, dst_file)
+                        print(f"Copied {file} from {item_path} to {dest_path}")
+                # Remove the source folder after merging
+                shutil.rmtree(item_path)
+                print(f"Merged and removed {item_path}")
+            except Exception as e:
+                print(f"Warning: Error merging {item_path} into {dest_path}: {e}")
         else:
             shutil.move(item_path, dest_path)
             print(f"Moved {item_path} -> {dest_path}")
+    
+    # Cleanup sweep: remove any remaining {Difficulty}_* folders at root
+    for item in os.listdir(leetcode_root):
+        item_path = os.path.join(leetcode_root, item)
+        if not os.path.isdir(item_path):
+            continue
+        
+        # Check if it matches the pattern {Difficulty}_*
+        for diff in DIFFICULTIES:
+            if item.startswith(f"{diff}_"):
+                try:
+                    shutil.rmtree(item_path)
+                    print(f"Cleaned up leftover folder: {item_path}")
+                except Exception as e:
+                    print(f"Warning: Could not remove leftover folder {item_path}: {e}")
+                break
     
     return category_map
 
