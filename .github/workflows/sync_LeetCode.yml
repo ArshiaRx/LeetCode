@@ -29,8 +29,8 @@ jobs:
 
       - name: Create difficulty folders
         run: |
+          mkdir -p Easy Medium Hard
           mkdir -p leetcode/Easy leetcode/Medium leetcode/Hard
-
 
       - name: Export accepted LeetCode submissions
         working-directory: leetcode
