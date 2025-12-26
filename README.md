@@ -1,4 +1,4 @@
-# LeetCode Solutions (Auto-Synced, with ocassionlly manual secretKey update)
+# LeetCode Solutions (Auto-Synced)
 
 This repository automatically syncs my **Accepted** LeetCode submissions into GitHub using a scheduled GitHub Actions workflow.
 
@@ -26,3 +26,5 @@ A language distribution report is generated automatically:
 - Only **Accepted** submissions are synced.
 - The workflow does **not** include problem statements (to avoid copyright/DMCA issues).
 - Sync runs on a schedule and can also be triggered manually in the Actions tab.
+
+-> Ocassionlly update secretKey manually
