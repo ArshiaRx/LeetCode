@@ -1,4 +1,4 @@
-# LeetCode Solutions (Auto-Synced)
+# LeetCode Solutions (Auto-Synced, with ocassionlly manual secretKey update)
 
 This repository automatically syncs my **Accepted** LeetCode submissions into GitHub using a scheduled GitHub Actions workflow.
 
