@@ -16,7 +16,7 @@ Each problem folder follows the format:
 
 Each problem folder contains:
 - `README.md` - The problem statement and description
-- Solution file(s) - Your accepted submissions
+- Solution file(s) - My accepted submissions
 
 ## Language Usage Analysis
 
