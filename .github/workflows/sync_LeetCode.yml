@@ -3,9 +3,8 @@ name: LeetCode Sync (Stable)
 on:
   workflow_dispatch:
   schedule:
-    # Runs daily at 13:00 UTC
-    # ≈ 8 AM Toronto (winter) / 9 AM Toronto (summer)
-    - cron: "0 13 * * *"
+    # Runs every 30 minutes (best approximation of "update every time I submit")
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: write
@@ -30,16 +29,20 @@ jobs:
 
       - name: Export accepted LeetCode submissions
         env:
-          # FULL cookie header copied from Network → Request Headers
           LEETCODE_COOKIES: ${{ secrets.LEETCODE_COOKIE }}
         run: |
           leetcode-export \
             --cookies "$LEETCODE_COOKIES" \
             --folder leetcode \
+            --problem-folder-name '${difficulty}/${question_id}-${title_slug}' \
             --only-accepted \
             --only-last-submission \
             --no-problem-statement \
             --verbose
+
+      - name: Generate analysis report
+        run: |
+          python scripts/leetcode_analyze.py
 
       - name: Commit and push changes
         run: |
@@ -48,7 +51,7 @@ jobs:
 
           if [ -n "$(git status --porcelain)" ]; then
             git add -A
-            git commit -m "Sync LeetCode accepted submissions"
+            git commit -m "Sync LeetCode submissions + update analysis"
             git push
           else
             echo "No changes to commit."
