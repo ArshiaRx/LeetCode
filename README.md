@@ -2,6 +2,8 @@
 
 This repository automatically syncs my **Accepted** LeetCode submissions into GitHub using a scheduled GitHub Actions workflow.
 
+CPS688 - ADVANCED Algorithms:  One of the great courses I took from TMU (Toronto Metropolitan University) formerly RyersonU taught by **Dr. [Claude Gravel](https://www.torontomu.ca/cs/our-people/claude-gravel/)**
+
 ## Structure
 
 Solutions are organized by difficulty:
@@ -16,7 +18,7 @@ Each problem folder follows the format:
 
 Each problem folder contains:
 - `README.md` - The problem statement and description
-- Solution file(s) - Your accepted submissions
+- Solution file(s) - My accepted submissions
 
 ## Language Usage Analysis
 
