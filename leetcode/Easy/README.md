@@ -1,16 +1,16 @@
 # Easy Problems
 
-Total solution files: **33**
+Total solution files: **34**
 
 ## Language Distribution
 
 | Language | Count | Percent |
 |---|---:|---:|
-| SQL | 12 | 36.4% |
-| Java | 11 | 33.3% |
-| Python | 7 | 21.2% |
-| C++ | 2 | 6.1% |
-| C | 1 | 3.0% |
+| SQL | 12 | 35.3% |
+| Java | 11 | 32.4% |
+| Python | 8 | 23.5% |
+| C++ | 2 | 5.9% |
+| C | 1 | 2.9% |
 
 ## Problems
 
@@ -33,6 +33,7 @@ Total solution files: **33**
 - [26-remove-duplicates-from-sorted-array](./26-remove-duplicates-from-sorted-array)
 - [27-remove-element](./27-remove-element)
 - [28-find-the-index-of-the-first-occurrence-in-a-string](./28-find-the-index-of-the-first-occurrence-in-a-string)
+- [338-counting-bits](./338-counting-bits)
 - [35-search-insert-position](./35-search-insert-position)
 - [577-employee-bonus](./577-employee-bonus)
 - [58-length-of-last-word](./58-length-of-last-word)
