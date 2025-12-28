@@ -1,14 +1,14 @@
 # Medium Problems
 
-Total solution files: **7**
+Total solution files: **8**
 
 ## Language Distribution
 
 | Language | Count | Percent |
 |---|---:|---:|
-| Python | 4 | 57.1% |
-| Java | 2 | 28.6% |
-| C++ | 1 | 14.3% |
+| Python | 5 | 62.5% |
+| Java | 2 | 25.0% |
+| C++ | 1 | 12.5% |
 
 ## Problems
 
@@ -18,5 +18,6 @@ Total solution files: **7**
 - [2-add-two-numbers](./2-add-two-numbers)
 - [238-product-of-array-except-self](./238-product-of-array-except-self)
 - [347-top-k-frequent-elements](./347-top-k-frequent-elements)
+- [49-group-anagrams](./49-group-anagrams)
 - [5-longest-palindromic-substring](./5-longest-palindromic-substring)
 
