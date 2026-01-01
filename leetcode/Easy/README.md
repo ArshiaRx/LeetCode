@@ -1,15 +1,15 @@
 # Easy Problems
 
-Total solution files: **34**
+Total solution files: **35**
 
 ## Language Distribution
 
 | Language | Count | Percent |
 |---|---:|---:|
-| SQL | 12 | 35.3% |
-| Java | 11 | 32.4% |
-| Python | 8 | 23.5% |
-| C++ | 2 | 5.9% |
+| SQL | 12 | 34.3% |
+| Java | 11 | 31.4% |
+| Python | 9 | 25.7% |
+| C++ | 2 | 5.7% |
 | C | 1 | 2.9% |
 
 ## Problems

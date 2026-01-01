@@ -2,21 +2,21 @@
 
 This repository contains my LeetCode solutions, organized by difficulty.
 
-Total solution files: **42**
+Total solution files: **43**
 
 ## Overall Language Distribution
 
 | Language | Count | Percent |
 |---|---:|---:|
-| Java | 13 | 31.0% |
-| Python | 13 | 31.0% |
-| SQL | 12 | 28.6% |
-| C++ | 3 | 7.1% |
-| C | 1 | 2.4% |
+| Python | 14 | 32.6% |
+| Java | 13 | 30.2% |
+| SQL | 12 | 27.9% |
+| C++ | 3 | 7.0% |
+| C | 1 | 2.3% |
 
 ## By Difficulty
 
-- [Easy](./Easy/) - 34 solutions
+- [Easy](./Easy/) - 35 solutions
 - [Medium](./Medium/) - 8 solutions
 - [Hard](./Hard/) - 0 solutions
 
