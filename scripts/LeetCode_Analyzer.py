@@ -319,6 +319,18 @@ def generate_root_readme(leetcode_root: str, results: dict):
         total_files = diff_data.get("total_files", 0)
         lines.append(f"- [{diff}](./{diff}/) - {total_files} solutions\n")
     lines.append("\n")
+
+     # 🔥 LeetCode Stats Card (centered)
+    lines.append(
+        '<p align="center">\n'
+        '  <img src="https://leetcard.jacoblin.cool/ArshiaRx'
+        '?theme=dark'
+        '&font=Fira%20Sans%20Extra%20Condensed'
+        '&border=0'
+        '&colors=0d1117,30363d,2ea043,d29922,f85149,c9d1d9,58a6ff,39d353" '
+        'width="80%" />\n'
+        '</p>\n\n'
+    )
     
     readme_path = os.path.join(leetcode_root, "README.md")
     with open(readme_path, "w", encoding="utf-8") as f:
