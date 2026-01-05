@@ -29,6 +29,17 @@ Language distribution reports are automatically generated as README.md files:
 - `leetcode/Medium/README.md` - Statistics and problem list for Medium problems
 - `leetcode/Hard/README.md` - Statistics and problem list for Hard problems
 
+
+<p align="center">
+  <img src="https://leetcard.jacoblin.cool/ArshiaRx
+  ?theme=dark
+  &font=Fira%20Sans%20Extra%20Condensed
+  &border=0
+  &colors=0d1117,30363d,2ea043,d29922,f85149,c9d1d9,58a6ff,39d353
+  &v=1" />
+</p>
+
+
 ## Notes
 
 - Only **Accepted** submissions are synced.
