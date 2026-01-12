@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Runs every 30 minutes (best approximation of "update every time I submit")
-    - cron: "*/30 * * * *"
+    - cron: "0 0 * * *"
   push:
     paths:
       - ".github/workflows/sync_LeetCode.yml"
