@@ -3,7 +3,6 @@ name: LeetCode Sync (Stable)
 on:
   workflow_dispatch:
   schedule:
-    # Runs every 30 minutes (best approximation of "update every time I submit")
     - cron: "0 0 * * *"
   push:
     paths:
@@ -40,11 +39,22 @@ jobs:
             --problem-folder-name '${difficulty}_${question_id}-${title_slug}' \
             --only-accepted \
             --only-last-submission \
+            --no-problem-statement \
             --verbose
+
+      - name: Clean generated logs
+        run: |
+          rm -f debug.log
+          find . -name "*.log" -delete
 
       - name: Organize by difficulty and generate analysis report
         run: |
           python scripts/LeetCode_Analyzer.py
+
+      - name: Clean generated logs again
+        run: |
+          rm -f debug.log
+          find . -name "*.log" -delete
 
       - name: Check for changes
         id: changes
@@ -56,14 +66,11 @@ jobs:
           fi
 
       - name: Commit and push changes
+        if: steps.changes.outputs.changed == 'true'
         run: |
           git config user.name "leetcode-sync-bot"
           git config user.email "actions@users.noreply.github.com"
 
-          if [ -n "$(git status --porcelain)" ]; then
-            git add -A
-            git commit -m "Sync LeetCode submissions + update analysis"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+          git add -A
+          git commit -m "Sync LeetCode submissions + update analysis"
+          git push
